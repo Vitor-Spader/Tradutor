@@ -33,6 +33,7 @@ t_RPAREN = r'\)'
 t_LBRACKETS = r'\['
 t_RBRACKETS = r'\]'
 t_SEMICOLON = r';'
+t_COMMA = r','
 
 def t_NAME(t):
     r'[a-zA-Z_][a-zA-Z0-9_]*'

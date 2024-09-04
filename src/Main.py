@@ -1,14 +1,7 @@
 from ply.lex import lex
 from ply.yacc import yacc
 
-# All tokens must be named in advance.
-reserved = {'int':'INT','char':'CHAR','float':'FLOAT'}
-
 tokens = ( 
-    'PLUS', 
-    'MINUS', 
-    'TIMES', 
-    'DIVIDE', 
     'LPAREN', 
     'RPAREN',
     'NAME', 
@@ -17,28 +10,22 @@ tokens = (
     'LBRACKETS',
     'RBRACKETS',
     'COMMA',
-    'SEMICOLON'
-) + tuple(reserved.values())
+    'SEMICOLON',
+    'TYPE'
+)
 
 # Ignored characters
 t_ignore = ' \t\n'
 
 # Token matching rules are written as regexs
-t_PLUS = r'\+'
-t_MINUS = r'-'
-t_TIMES = r'\*'
-t_DIVIDE = r'/'
+t_TYPE = r'^int\b|^float\b|^char\b'
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
 t_LBRACKETS = r'\['
 t_RBRACKETS = r'\]'
 t_SEMICOLON = r';'
 t_COMMA = r','
-
-def t_NAME(t):
-    r'[a-zA-Z_][a-zA-Z0-9_]*'
-    t.type = reserved.get(t.value, 'NAME')
-    return t
+t_NAME = r'[a-zA-Z_][a-zA-Z0-9_]*'
 
 def t_REALNUMBER(t):
     r'(\d+\.\d+)'
@@ -74,23 +61,23 @@ int ;
 
 # Write functions for each grammar rule which is
 # specified in the docstring.
-def p_expression(p):
+def p_declaration(p):
     '''
-    expression : term PLUS term
-               | term MINUS term
+    declaration : term SEMICOLON
     '''
     # p is a sequence that represents rule contents.
     #
-    # expression : term PLUS term
-    #   p[0]     : p[1] p[2] p[3]
+    # expression : term SEMICOLON
+    #   p[0]     : p[1] p[2]
     # 
-    p[0] = ('binop', p[2], p[1], p[3])
+    p[0] = ('declaration', p[1], p[2])
+    print(p[0])
 
-def p_expression_term(p):
+def p_declaration_term(p):
     '''
-    expression : term
+    term: CHAR factor_char | type factor
     '''
-    p[0] = p[1]
+    p[0] = (p[1])
 
 def p_term(p):
     '''
@@ -137,5 +124,5 @@ def p_error(p):
 parser = yacc()
 
 # Parse an expression
-ast = parser.parse('2 * 3 + 4 * (5 - x)')
+ast = parser.parse('int a;')
 print(ast)

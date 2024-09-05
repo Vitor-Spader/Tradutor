@@ -69,25 +69,21 @@ def p_declaration_term_char(p):
     '''
     term : CHAR factor_char
     '''
-    p[0] = ('var', p[1], p[2])
+    p[0] = (p[1], p[2])
 
 def p_term_factor_char(p):
     '''
-    factor_char :  factor LBRACKETS NUMBER RBRACKETS 	
+    factor_char : factor LBRACKETS NUMBER RBRACKETS 	
                 | factor_char COMMA factor_char
                 | factor
 
     '''
-    # for x in p:
-    #     print(x)
-    print('------')
     if len(p) == 5:
         p[0] = ('char_length', p[1], p[2], p[3], p[4])
     elif len(p) == 4:
         p[0] = ('list', p[1], p[2], p[3])
     else:
         p[0] = p[1]   
-    print(p[0])
 
 def p_term_factor(p):
     '''
@@ -106,5 +102,5 @@ def p_error(p):
 parser = yacc()
 
 # Parse an expression
-ast = parser.parse('char a,b[10],c;')
+ast = parser.parse('char a[10],b[10],c[10];')
 print(ast)

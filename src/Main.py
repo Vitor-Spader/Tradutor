@@ -100,9 +100,9 @@ def p_term_factor(p):
            | NAME
     '''
     if len(p) == 4:
-        p[0] = ('list', p[1], p[2], p[3])
+        p[0] = ('list', p[1], p[2],('name', p[3]))
     else:
-        p[0] = p[1]
+        p[0] = ('name', p[1])
 
 def p_error(p):
     print(f'Syntax error at {p.value!r}')
@@ -111,5 +111,5 @@ def p_error(p):
 parser = yacc()
 
 # Parse an expression
-ast = parser.parse('int a,b,c;')
+ast = parser.parse('int a,b;')
 print(ast)

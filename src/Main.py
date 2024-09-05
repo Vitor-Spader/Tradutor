@@ -65,6 +65,18 @@ def p_declaration(p):
     # 
     p[0] = ('declaration', p[1], p[2])
 
+def p_declaration_int(p):
+    '''
+    term : INT factor
+    '''
+    p[0] = ('var', p[1], p[2])
+
+def p_declaration_float(p):
+    '''
+    term : FLOAT factor
+    '''
+    p[0] = ('var', p[1], p[2])
+
 def p_declaration_term_char(p):
     '''
     term : CHAR factor_char

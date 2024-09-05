@@ -4,10 +4,6 @@ from ply.yacc import yacc
 reserved = {'int':'INT','char':'CHAR','float':'FLOAT'}
 
 tokens = ( 
-    'PLUS', 
-    'MINUS', 
-    'TIMES', 
-    'DIVIDE', 
     'LPAREN', 
     'RPAREN',
     'NAME', 
@@ -55,6 +51,7 @@ def t_error(t):
 # Build the lexer object
 lexer = lex()
 
+index  = 1
 # Write functions for each grammar rule which is
 # specified in the docstring.
 def p_declaration(p):
@@ -74,32 +71,36 @@ def p_declaration_term(p):
          | INT factor 
          | FLOAT factor
     '''
-    p[0] = ('term', p[1], p[2])
-
-# def p_term(p):
-#     '''
-#     term : CHAR factor_char 
-#          | INT factor 
-#          | FLOAT factor
-#     '''
-#     print(p)
-#     p[0] = p[1]
+    p[0] = ('var', p[1], p[2])
 
 def p_term_factor_char(p):
     '''
     factor_char : factor LBRACKETS NUMBER RBRACKETS 
                 | factor_char COMMA factor_char 
-                | factor COMMA factor
+                | factor
     '''
-    p[0] = p[1]
+    # for x in p:
+    #     print(x)
+    print('------')
+    if len(p) == 5:
+        p[0] = ('char_length', p[1], p[2], p[3], p[4])
+    elif len(p) == 4:
+        p[0] == ('list', p[1], p[2], p[3])
+    else:
+        p[0] = p[1]
+
+    print(p[0])
 
 
 def p_term_factor(p):
     '''
-    factor : NAME 
-           | NAME COMMA factor
+    factor : factor COMMA NAME 
+           | NAME
     '''
-    p[0] = ('name', p[1])
+    if len(p) > 2:
+        p[0] = ('name',p[1],p[3])
+    else:  
+        p[0] = ('name', p[1])
 
 def p_error(p):
     print(f'Syntax error at {p.value!r}')
@@ -108,5 +109,5 @@ def p_error(p):
 parser = yacc()
 
 # Parse an expression
-ast = parser.parse('float a;')
+ast = parser.parse('char a,b[10],c;')
 print(ast)

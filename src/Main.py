@@ -65,19 +65,18 @@ def p_declaration(p):
     # 
     p[0] = ('declaration', p[1], p[2])
 
-def p_declaration_term(p):
+def p_declaration_term_char(p):
     '''
-    term : CHAR factor_char 
-         | INT factor 
-         | FLOAT factor
+    term : CHAR factor_char
     '''
     p[0] = ('var', p[1], p[2])
 
 def p_term_factor_char(p):
     '''
-    factor_char : factor LBRACKETS NUMBER RBRACKETS 
-                | factor_char COMMA factor_char 
+    factor_char :  factor LBRACKETS NUMBER RBRACKETS 	
+                | factor_char COMMA factor_char
                 | factor
+
     '''
     # for x in p:
     #     print(x)
@@ -85,22 +84,20 @@ def p_term_factor_char(p):
     if len(p) == 5:
         p[0] = ('char_length', p[1], p[2], p[3], p[4])
     elif len(p) == 4:
-        p[0] == ('list', p[1], p[2], p[3])
+        p[0] = ('list', p[1], p[2], p[3])
     else:
-        p[0] = p[1]
-
+        p[0] = p[1]   
     print(p[0])
-
 
 def p_term_factor(p):
     '''
-    factor : factor COMMA NAME 
+    factor : factor COMMA NAME
            | NAME
     '''
-    if len(p) > 2:
-        p[0] = ('name',p[1],p[3])
-    else:  
-        p[0] = ('name', p[1])
+    if len(p) == 4:
+        p[0] = ('list', p[1], p[2], p[3])
+    else:
+        p[0] = p[1]
 
 def p_error(p):
     print(f'Syntax error at {p.value!r}')

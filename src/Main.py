@@ -76,22 +76,13 @@ def p_declaration_term(p):
     '''
     p[0] = ('term', p[1], p[2])
 
-# def p_term(p):
-#     '''
-#     term : CHAR factor_char 
-#          | INT factor 
-#          | FLOAT factor
-#     '''
-#     print(p)
-#     p[0] = p[1]
-
 def p_term_factor_char(p):
     '''
     factor_char : factor LBRACKETS NUMBER RBRACKETS 
                 | factor_char COMMA factor_char 
                 | factor COMMA factor
     '''
-    p[0] = p[1]
+    p[0] = ('list', p[1], p[3])
 
 
 def p_term_factor(p):

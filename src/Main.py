@@ -68,8 +68,17 @@ def p_declaration(p):
 def p_declaration_term_char(p):
     '''
     term : CHAR factor_char
+         | INT factor_number
+         | FLOAT factor_number
     '''
     p[0] = (p[1], p[2])
+
+def p_term_factor_number(p):
+    '''
+    factor_number : factor
+
+    '''
+    p[0] = p[1] 
 
 def p_term_factor_char(p):
     '''
@@ -102,5 +111,5 @@ def p_error(p):
 parser = yacc()
 
 # Parse an expression
-ast = parser.parse('char a[10],b[10],c[10];')
+ast = parser.parse('int a,b,c;')
 print(ast)

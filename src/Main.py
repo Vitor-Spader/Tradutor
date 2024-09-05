@@ -1,7 +1,6 @@
 from ply.lex import lex
 from ply.yacc import yacc
 
-# All tokens must be named in advance.
 reserved = {'int':'INT','char':'CHAR','float':'FLOAT'}
 
 tokens = ( 
@@ -24,15 +23,12 @@ tokens = (
 t_ignore = ' \t\n'
 
 # Token matching rules are written as regexs
-t_PLUS = r'\+'
-t_MINUS = r'-'
-t_TIMES = r'\*'
-t_DIVIDE = r'/'
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
 t_LBRACKETS = r'\['
 t_RBRACKETS = r'\]'
 t_SEMICOLON = r';'
+t_COMMA = r','
 
 def t_NAME(t):
     r'[a-zA-Z_][a-zA-Z0-9_]*'
@@ -59,75 +55,51 @@ def t_error(t):
 # Build the lexer object
 lexer = lex()
 
-data = '''
-int ;
-'''
-
-#lexer.input(data)
-
-#while True:
-#    tok = lexer.token()
-    # if not tok:
-    #     break
-    # print(tok)
-
 # Write functions for each grammar rule which is
 # specified in the docstring.
-def p_expression(p):
+def p_declaration(p):
     '''
-    expression : term PLUS term
-               | term MINUS term
+    declaration : term SEMICOLON
     '''
     # p is a sequence that represents rule contents.
     #
-    # expression : term PLUS term
-    #   p[0]     : p[1] p[2] p[3]
+    # expression : term SEMICOLON
+    #   p[0]     : p[1] p[2]
     # 
-    p[0] = ('binop', p[2], p[1], p[3])
+    p[0] = ('declaration', p[1], p[2])
 
-def p_expression_term(p):
+def p_declaration_term(p):
     '''
-    expression : term
+    term : CHAR factor_char 
+         | INT factor 
+         | FLOAT factor
+    '''
+    p[0] = ('term', p[1], p[2])
+
+# def p_term(p):
+#     '''
+#     term : CHAR factor_char 
+#          | INT factor 
+#          | FLOAT factor
+#     '''
+#     print(p)
+#     p[0] = p[1]
+
+def p_term_factor_char(p):
+    '''
+    factor_char : factor LBRACKETS NUMBER RBRACKETS 
+                | factor_char COMMA factor_char 
+                | factor COMMA factor
     '''
     p[0] = p[1]
 
-def p_term(p):
-    '''
-    term : factor TIMES factor
-         | factor DIVIDE factor
-    '''
-    p[0] = ('binop', p[2], p[1], p[3])
 
 def p_term_factor(p):
     '''
-    term : factor
-    '''
-    p[0] = p[1]
-
-def p_factor_number(p):
-    '''
-    factor : NUMBER
-    '''
-    p[0] = ('number', p[1])
-
-def p_factor_name(p):
-    '''
-    factor : NAME
+    factor : NAME 
+           | NAME COMMA factor
     '''
     p[0] = ('name', p[1])
-
-def p_factor_unary(p):
-    '''
-    factor : PLUS factor
-           | MINUS factor
-    '''
-    p[0] = ('unary', p[1], p[2])
-
-def p_factor_grouped(p):
-    '''
-    factor : LPAREN expression RPAREN
-    '''
-    p[0] = ('grouped', p[2])
 
 def p_error(p):
     print(f'Syntax error at {p.value!r}')
@@ -136,5 +108,5 @@ def p_error(p):
 parser = yacc()
 
 # Parse an expression
-ast = parser.parse('2 * 3 + 4 * (5 - x)')
+ast = parser.parse('float a;')
 print(ast)

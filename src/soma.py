@@ -95,14 +95,13 @@ def p_expression(p):
                   | expression MINUS term
                   | NAME assig_expression
                   | term
-
     '''
-    if len(p) > 2:
+    if len(p) == 4:
         p[0] = (p[2], # Operation 
                 p[1], # term
                 p[3]  # factor
                )
-    elif len(p) == 2:
+    elif len(p) == 3:
         p[0] = (p[2], # NAME 
                 p[1] # assig_expression
                )
@@ -143,9 +142,8 @@ def p_assig_expression(p):
                         | TIMES_EQUAL assig_term
                         | DIVIDE_EQUAL assig_term
     '''
-    p[0] = (p[2], # Operation 
-            p[1], # term
-            p[3]  # factor
+    p[0] = (p[1], # Operation 
+            p[2] # term
             )
 
 def p_assig_term_factor(p):

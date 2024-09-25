@@ -170,5 +170,5 @@ def p_error(p):
 parser = yacc()
 
 # Parse an expression
-ast = parser.parse('int a,b;')
+ast = parser.parse(input('digite a expressao: '))
 print(ast)

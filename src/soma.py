@@ -196,7 +196,7 @@ def p_declar_factor_char(p):
         p[0] = p[1]
 
 def p_declar_factor(p):
-    '''declar_factor : terminal_name COMMA declar_factor
+    '''declar_factor : terminal_name COMMA declar_factor_char
                      | terminal_name
     '''
     if len(p) == 2:
@@ -206,7 +206,7 @@ def p_declar_factor(p):
         p[0] = (
                 p[1], # declar_factor 
                 p[2], # COMMA
-                p[3]  # NAME
+                p[3]  # declar_factor_char
                )
                
 ########## Gramática -> Operações Matemáticas ##########
@@ -364,5 +364,5 @@ def p_error(p):
 parser = yacc(debug=True)
 
 # Parse an expression
-ast = parser.parse('_X >= 1')
+ast = parser.parse('_X = 1')
 print(ast)

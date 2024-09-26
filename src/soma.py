@@ -119,10 +119,21 @@ def p_expression(p):
     '''
     p[0] = p[1]
 
+def p_term_num_char(p):
+    '''term_num_char : terminal_num
+                     | terminal_char
+    '''
+    p[0] = p[1] #terminal_num/terminal_char
+
 def p_terminal_num(p):
     '''terminal_num : terminal_number
 	                | REALNUMBER
-	                | NAME
+	                | terminal_name
+    '''
+    p[0] = p[1]
+
+def p_terminal_name(p):
+    '''terminal_name : NAME
     '''
     p[0] = p[1]
 
@@ -133,6 +144,26 @@ def p_terminal_number(p):
 
 def p_terminal_char(p):
     '''terminal_char : CHAR_VALUE
+    '''
+    p[0] = p[1]
+
+def p_terminal_lparen(p):
+    '''terminal_lparen : LPAREN
+    '''
+    p[0] = p[1]
+
+def p_terminal_rparen(p):
+    '''terminal_rparen : RPAREN
+    '''
+    p[0] = p[1]
+
+def p_terminal_lcbracket(p):
+    '''terminal_lcbracket : LCBRACKET
+    '''
+    p[0] = p[1]
+
+def p_terminal_rcbracket(p):
+    '''terminal_rcbracket : RCBRACKET
     '''
     p[0] = p[1]
 
@@ -152,7 +183,6 @@ def p_declar_expression(p):
     
 def p_declar_factor_char(p):
     '''declar_factor_char : declar_factor LBRACKET terminal_number RBRACKET 	
-                          | declar_factor_char COMMA declar_factor_char
                           | declar_factor   
     '''
     if len(p) == 5:
@@ -172,8 +202,8 @@ def p_declar_factor_char(p):
         p[0] = p[1]
 
 def p_declar_factor(p):
-    '''declar_factor : NAME 
-                     | declar_factor COMMA NAME  
+    '''declar_factor : terminal_name COMMA declar_factor
+                     | terminal_name
     '''
     if len(p) == 2:
         p[0] = p[1] #NAME 
@@ -182,7 +212,7 @@ def p_declar_factor(p):
         p[0] = (
                 p[1], # declar_factor 
                 p[2], # COMMA
-                p[3]  # NAME
+                p[3]  # declar_factor_char
                )
                
 ########## Gramática -> Operações Matemáticas ##########
@@ -221,7 +251,7 @@ def p_math_term(p):
 
 def p_math_factor(p):
     '''math_factor : terminal_num
-                   | LPAREN math_expression RPAREN
+                   | terminal_lparen math_expression terminal_rparen
     '''
     if len(p) == 2:
         p[0] = p[1] #terminal_num
@@ -234,13 +264,13 @@ def p_math_factor(p):
 
 ########## Gramática -> Operações de Atribuição ##########
 def p_assign_expression(p):
-    '''assign_expression : NAME PLUS_ONE
-                         | NAME MINUS_ONE
-                         | NAME EQUAL assign_term
-                         | NAME PLUS_EQUAL terminal_num
-                         | NAME MINUS_EQUAL terminal_num
-                         | NAME TIMES_EQUAL terminal_num
-                         | NAME DIVIDE_EQUAL terminal_num
+    '''assign_expression : terminal_name PLUS_ONE
+                         | terminal_name MINUS_ONE
+                         | terminal_name EQUAL term_num_char
+                         | terminal_name PLUS_EQUAL terminal_num
+                         | terminal_name MINUS_EQUAL terminal_num
+                         | terminal_name TIMES_EQUAL terminal_num
+                         | terminal_name DIVIDE_EQUAL terminal_num
     '''
     if len(p) == 3:
         p[0] = (
@@ -249,79 +279,77 @@ def p_assign_expression(p):
                )
     elif len(p) == 4:
         p[0] = (
-                p[1], # NAME 
                 p[2], # EQUAL/PLUS_EQUAL/MINUS_EQUAL/TIMES_EQUAL/DIVIDE_EQUAL
+                p[1], # NAME 
                 p[3]  #assign_term/terminal_num
                )
-    
-def p_assign_term(p):
-    '''assign_term : terminal_num
-                   | terminal_char
-    '''
-    p[0] = p[1] #terminal_num/terminal_char
+
     
 ########## Gramática -> Operações de Lógica ##########
 def p_logic_expression(p):
-    '''logic_expression : logic_term EQUAL_TO logic_term 
-		                | logic_term  NOT_EQUAL logic_term  
+    '''logic_expression : term_num_char EQUAL_TO term_num_char 
+		                | term_num_char  NOT_EQUAL term_num_char  
                         | terminal_num LESS_THAN terminal_num 
                         | terminal_num GREATER_THAN terminal_num 
                         | terminal_num LESS_EQUAL terminal_num 
                         | terminal_num GREATER_EQUAL terminal_num 
     '''
     p[0] = (
-            p[1], # logic_term/terminal_num
+            p[1], # term_num_char
             p[2], # EQUAL_TO/NOT_EQUAL/LESS_THAN/GREATER_THAN/LESS_EQUAL/GREATER_EQUAL
-            p[3]  # logic_term/terminal_num
+            p[3]  # term_num_char
            )
     
-def p_logic_term(p):
-    '''logic_term : terminal_num
-                  | terminal_char
+
+########## Gramática -> Bloco de Execução ##########
+def p_block_expression(p):
+    '''block_expression : terminal_lparen logic_expression terminal_rparen block_term
     '''
-    p[0] = p[1] # terminal_num/terminal_char 
+    p[0] = (
+            p[1], # LPAREN
+            p[2], # logic_expression
+            p[3], # RPAREN
+            p[4]  # block_term
+           )
     
+def p_block_term(p):
+    '''block_term : terminal_lcbracket math_expression terminal_rcbracket
+    '''
+    p[0] = (
+            p[1], # LCBRACKET
+            p[2], # math_expression
+            p[3]  # RCBRACKET
+           )
 
 ########## Gramática -> Condicional ##########
 def p_cond_expression(p):
-    '''cond_expression : IF LPAREN logic_expression RPAREN LCBRACKET math_expression RCBRACKET cond_term
+    '''cond_expression : IF block_expression cond_term 
     '''
     p[0] = (
             p[1], # IF
-            p[2], # LPAREN
-            p[3], # logic_expression
-            p[4], # RPAREN
-            p[5], # LCBRACKET
-            p[6], # math_expression
-            p[7], # RCBRACKET
-            p[8]  # cond_term
+            p[2], # block_expression
+            p[3]  # cond_term
            )
     
 def p_cond_term(p):
-    '''cond_term : ELSE LCBRACKET  math_expression RCBRACKET
+    '''cond_term : ELSE block_term
                  | empty
-
     '''
-    if len(p) == 5:
+    if len(p) == 3:
         p[0] = (
                 p[1], # ELSE
-                p[2], # LCBRACKET
-                p[3], # math_expression
-                p[4]  # RCBRACKET
+                p[2] # block_term
                )
+    else:
+        pass
         
 ########## Gramática -> Loop ##########
 def p_loop_expression(p):
-    '''loop_expression : WHILE LPAREN logic_expression RPAREN LCBRACKET math_expression RCBRACKET 
+    '''loop_expression : WHILE block_expression
     '''
     p[0] = (
             p[1], # WHILE
-            p[2], # LPAREN
-            p[3], # logic_expression
-            p[4], # RPAREN
-            p[5], # LCBRACKET
-            p[6], # math_expression
-            p[7]  # RCBRACKET
+            p[2]  # block_expression
            )
 
 def p_error(p):
@@ -331,5 +359,5 @@ def p_error(p):
 parser = yacc(debug=True)
 
 # Parse an expression
-ast = parser.parse('X = 1')
+ast = parser.parse('_X *= 2;')
 print(ast)

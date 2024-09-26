@@ -11,6 +11,13 @@ reserved = {
 }
 
 tokens = ( 
+    'EQUAL_TO',
+    'EQUAL',
+    'NOT_EQUAL',
+    'LESS_THAN',
+    'GREATER_THAN',
+    'LESS_EQUAL',
+    'GREATER_EQUAL',
     'PLUS_EQUAL',#Soma a variavel de destino a segunda variáve informada i += x
     'MINUS_EQUAL',#Subtrai a variavel de destino a segunda variáve informada i -= x
     'TIMES_EQUAL',#Soma a variavel de destino a segunda variáve informada i += x
@@ -23,7 +30,10 @@ tokens = (
     'DIVIDE',
     'LPAREN', 
     'RPAREN',
-    'EQUAL',
+    'LBRACKET', 
+    'RBRACKET',
+    'LCBRACKET',
+    'RCBRACKET',
     'NAME', 
     'NUMBER',
     'CHAR_VALUE',#Cadeia de caracteres
@@ -35,22 +45,32 @@ tokens = (
 # Ignored characters
 t_ignore = ' \t\n'
 
-literals = [';', ',']
-
+t_SEMICOLON = r';'
+t_EQUAL_TO = r'=='
+t_EQUAL = r'='
+t_NOT_EQUAL = r'!='
+t_LESS_THAN = r'<'
+t_GREATER_THAN = r'>'
+t_LESS_EQUAL = r'<='
+t_GREATER_EQUAL = r'>='
 t_PLUS_EQUAL = r'\+='
 t_MINUS_EQUAL = r'-='
 t_TIMES_EQUAL = r'\*='
 t_DIVIDE_EQUAL = r'/='
 t_PLUS_ONE = r'\+\+'
-t_MINUS_ONE = '--'
-t_MINUS = '-'
+t_MINUS_ONE = r'--'
+t_MINUS = r'-'
 t_PLUS = r'\+'
 t_TIMES = r'\*'
 t_DIVIDE = r'/'
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
-t_EQUAL = r'='
+t_LBRACKET = r'\[' 
+t_RBRACKET = r'\]'
+t_LCBRACKET = r'\{'
+t_RCBRACKET = r'\}'
 t_CHAR_VALUE = r"'.*'"
+t_COMMA = r','
 
 def t_NAME(t):
     r'[a-zA-Z_][a-zA-Z0-9_]*'
@@ -77,95 +97,238 @@ def t_error(t):
 # Build the lexer object
 lexer = lex()
 
-
 precedence = (
     ('left', 'PLUS', 'MINUS'),
     ('left', 'TIMES', 'DIVIDE'),
     ('right', 'UMINUS'),
 )
 
-
-##### MATH ##########
-def p_math_expr_uminus(p):
-    'expression : MINUS expression %prec UMINUS'
-    p[0] = -p[2]
-
-def p_expression(p):
-    '''expression : expression PLUS term
-                  | expression MINUS term
-                  | NAME assig_expression
-                  | term
+########## GRAMÁTICA GLOBAL ##########
+def p_declaration(p):
+    '''declaration : expression SEMICOLON
     '''
-    if len(p) == 4:
-        p[0] = (p[2], # Operation 
-                p[1], # term
-                p[3]  # factor
+    p[0] = p[1]
+    
+def p_expression(p):
+    '''expression : math_expression
+	              | logic_expression
+                  | assign_expression
+                  | declar_expression
+                  | cond_expression
+                  | loop_expression
+    '''
+    p[0] = p[1]
+
+def p_terminal_num(p):
+    '''terminal_num : terminal_number
+	                | REALNUMBER
+	                | NAME
+    '''
+    p[0] = p[1]
+
+def p_terminal_number(p):
+    '''terminal_number : NUMBER
+    '''
+    p[0] = p[1]
+
+def p_terminal_char(p):
+    '''terminal_char : CHAR_VALUE
+    '''
+    p[0] = p[1]
+
+def p_empty(p):
+    'empty :'
+    pass
+    
+########## Gramática -> Declaração de Variáveis ##########
+def p_declar_expression(p):
+    '''declar_expression : INT declar_factor
+                         | FLOAT declar_factor
+                         | CHAR declar_factor_char
+    '''
+    p[0] = (p[1], # TYPE 
+            p[2], # declar_factor/declar_factor_char
+            )
+    
+def p_declar_factor_char(p):
+    '''declar_factor_char : declar_factor LBRACKET terminal_number RBRACKET 	
+                          | declar_factor_char COMMA declar_factor_char
+                          | declar_factor   
+    '''
+    if len(p) == 5:
+        p[0] = (
+                p[1], # declar_factor 
+                p[2], # LBRACKET
+                p[3], # terminal_number
+                p[4]  # RBRACKET
                )
-    elif len(p) == 3:
-        p[0] = (p[2], # NAME 
-                p[1] # assig_expression
+    elif len(p) == 4:
+        p[0] = (
+                p[1], # declar_factor_char 
+                p[2], # COMMA
+                p[3]  # declar_factor_char
                )
-    else:
+    elif len(p) == 2:
         p[0] = p[1]
 
+def p_declar_factor(p):
+    '''declar_factor : NAME 
+                     | declar_factor COMMA NAME  
+    '''
+    if len(p) == 2:
+        p[0] = p[1] #NAME 
+               
+    elif len(p) == 4:
+        p[0] = (
+                p[1], # declar_factor 
+                p[2], # COMMA
+                p[3]  # NAME
+               )
+               
+########## Gramática -> Operações Matemáticas ##########
+def p_math_expression_uminus(p):
+    'math_expression : MINUS math_expression %prec UMINUS'
+    p[0] = -p[2]
+
 def p_math_expression(p):
-    '''term : term TIMES factor
-            | term DIVIDE factor
+    '''math_expression : math_expression PLUS math_term 
+                       | math_expression MINUS math_term 
+                       | math_term
     '''
-    p[0] = (p[2], # Operation 
-            p[1], # term
-            p[3]  # factor
-            )
-
-def p_math_term_factor(p):
-    'term : factor'
-    p[0] = p[1]
-
-def p_math_factor_num(p):
-    '''factor : NUMBER
-              | REALNUMBER
-              | NAME 
+    if len(p) == 2:
+        p[0] = p[1] #math_term 
+               
+    elif len(p) == 4:
+        p[0] = (
+                p[2], # math_expression 
+                p[1], # PLUS/MINUS
+                p[3]  # math_term
+               )
+        
+def p_math_term(p):
+    '''math_term : math_term TIMES math_factor 
+        	     | math_term DIVIDE math_factor 
+                 | math_factor
     '''
-    p[0] = p[1]
+    if len(p) == 2:
+        p[0] = p[1] #math_factor
+    elif len(p) == 4:
+        p[0] = (
+                p[2], # math_term 
+                p[1], # TIMES/DIVIDE
+                p[3]  # math_factor
+               )
 
-def p_math_factor_expr(p):
-    'factor : LPAREN expression RPAREN'
-    p[0] = p[2]
-
-
-####### ASSIGNMENT #######
-
-def p_assig_expression(p):
-    '''assig_expression : EQUAL assig_term_factor
-                        | PLUS_EQUAL assig_term
-                        | MINUS_EQUAL assig_term
-                        | TIMES_EQUAL assig_term
-                        | DIVIDE_EQUAL assig_term
+def p_math_factor(p):
+    '''math_factor : terminal_num
+                   | LPAREN math_expression RPAREN
     '''
-    p[0] = (p[1], # Operation 
-            p[2] # term
-            )
+    if len(p) == 2:
+        p[0] = p[1] #terminal_num
+    elif len(p) == 4:
+        p[0] = (
+                p[2], # LPAREN 
+                p[1], # math_expression
+                p[3]  # RPAREN
+               )
 
-def p_assig_term_factor(p):
-    '''assig_term_factor : assig_term
-                         | CHAR_VALUE
+########## Gramática -> Operações de Atribuição ##########
+def p_assign_expression(p):
+    '''assign_expression : NAME PLUS_ONE
+                         | NAME MINUS_ONE
+                         | NAME EQUAL assign_term
+                         | NAME PLUS_EQUAL terminal_num
+                         | NAME MINUS_EQUAL terminal_num
+                         | NAME TIMES_EQUAL terminal_num
+                         | NAME DIVIDE_EQUAL terminal_num
     '''
-    p[0] = p[1]
-
-def p_assig_term(p):
-    '''assig_term : NAME
-                  | NUMBER
-                  | REALNUMBER
+    if len(p) == 3:
+        p[0] = (
+                p[1], # NAME
+                p[2]  # PLUS_ONE/MINUS_ONE
+               )
+    elif len(p) == 4:
+        p[0] = (
+                p[1], # NAME 
+                p[2], # EQUAL/PLUS_EQUAL/MINUS_EQUAL/TIMES_EQUAL/DIVIDE_EQUAL
+                p[3]  #assign_term/terminal_num
+               )
+    
+def p_assign_term(p):
+    '''assign_term : terminal_num
+                   | terminal_char
     '''
-    p[0] = p[1]
+    p[0] = p[1] #terminal_num/terminal_char
+    
+########## Gramática -> Operações de Lógica ##########
+def p_logic_expression(p):
+    '''logic_expression : logic_term EQUAL_TO logic_term 
+		                | logic_term  NOT_EQUAL logic_term  
+                        | terminal_num LESS_THAN terminal_num 
+                        | terminal_num GREATER_THAN terminal_num 
+                        | terminal_num LESS_EQUAL terminal_num 
+                        | terminal_num GREATER_EQUAL terminal_num 
+    '''
+    p[0] = (
+            p[1], # logic_term/terminal_num
+            p[2], # EQUAL_TO/NOT_EQUAL/LESS_THAN/GREATER_THAN/LESS_EQUAL/GREATER_EQUAL
+            p[3]  # logic_term/terminal_num
+           )
+    
+def p_logic_term(p):
+    '''logic_term : terminal_num
+                  | terminal_char
+    '''
+    p[0] = p[1] # terminal_num/terminal_char 
+    
 
-####### RELATIONAL ########
+########## Gramática -> Condicional ##########
+def p_cond_expression(p):
+    '''cond_expression : IF LPAREN logic_expression RPAREN LCBRACKET math_expression RCBRACKET cond_term
+    '''
+    p[0] = (
+            p[1], # IF
+            p[2], # LPAREN
+            p[3], # logic_expression
+            p[4], # RPAREN
+            p[5], # LCBRACKET
+            p[6], # math_expression
+            p[7], # RCBRACKET
+            p[8]  # cond_term
+           )
+    
+def p_cond_term(p):
+    '''cond_term : ELSE LCBRACKET  math_expression RCBRACKET
+                 | empty
+
+    '''
+    if len(p) == 5:
+        p[0] = (
+                p[1], # ELSE
+                p[2], # LCBRACKET
+                p[3], # math_expression
+                p[4]  # RCBRACKET
+               )
+        
+########## Gramática -> Loop ##########
+def p_loop_expression(p):
+    '''loop_expression : WHILE LPAREN logic_expression RPAREN LCBRACKET math_expression RCBRACKET 
+    '''
+    p[0] = (
+            p[1], # WHILE
+            p[2], # LPAREN
+            p[3], # logic_expression
+            p[4], # RPAREN
+            p[5], # LCBRACKET
+            p[6], # math_expression
+            p[7]  # RCBRACKET
+           )
 
 def p_error(p):
     print(f'Syntax error at {p.value!r}')
 
 # Build the parser
-parser = yacc()
+parser = yacc(debug=True)
 
 # Parse an expression
 ast = parser.parse('X = 1')

@@ -295,8 +295,8 @@ def p_logic_expression(p):
                         | terminal_num GREATER_EQUAL terminal_num 
     '''
     p[0] = (
-            p[1], # term_num_char
             p[2], # EQUAL_TO/NOT_EQUAL/LESS_THAN/GREATER_THAN/LESS_EQUAL/GREATER_EQUAL
+            p[1], # term_num_char
             p[3]  # term_num_char
            )
     
@@ -359,5 +359,5 @@ def p_error(p):
 parser = yacc(debug=True)
 
 # Parse an expression
-ast = parser.parse('_X *= 2;')
+ast = parser.parse('if (_X <= 2) {x+1};')
 print(ast)

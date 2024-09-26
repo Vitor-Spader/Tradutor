@@ -359,5 +359,5 @@ def p_error(p):
 parser = yacc(debug=True)
 
 # Parse an expression
-ast = parser.parse('_X = 1')
+ast = parser.parse('_X *= 2;')
 print(ast)

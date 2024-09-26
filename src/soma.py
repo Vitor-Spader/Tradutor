@@ -122,7 +122,12 @@ def p_expression(p):
 def p_terminal_num(p):
     '''terminal_num : terminal_number
 	                | REALNUMBER
-	                | NAME
+	                | terminal_name
+    '''
+    p[0] = p[1]
+
+def p_terminal_name(p):
+    '''terminal_name : NAME
     '''
     p[0] = p[1]
 
@@ -152,7 +157,6 @@ def p_declar_expression(p):
     
 def p_declar_factor_char(p):
     '''declar_factor_char : declar_factor LBRACKET terminal_number RBRACKET 	
-                          | declar_factor_char COMMA declar_factor_char
                           | declar_factor   
     '''
     if len(p) == 5:
@@ -172,8 +176,8 @@ def p_declar_factor_char(p):
         p[0] = p[1]
 
 def p_declar_factor(p):
-    '''declar_factor : NAME 
-                     | declar_factor COMMA NAME  
+    '''declar_factor : terminal_name COMMA declar_factor
+                     | terminal_name
     '''
     if len(p) == 2:
         p[0] = p[1] #NAME 
@@ -234,13 +238,13 @@ def p_math_factor(p):
 
 ########## Gramática -> Operações de Atribuição ##########
 def p_assign_expression(p):
-    '''assign_expression : NAME PLUS_ONE
-                         | NAME MINUS_ONE
-                         | NAME EQUAL assign_term
-                         | NAME PLUS_EQUAL terminal_num
-                         | NAME MINUS_EQUAL terminal_num
-                         | NAME TIMES_EQUAL terminal_num
-                         | NAME DIVIDE_EQUAL terminal_num
+    '''assign_expression : terminal_name PLUS_ONE
+                         | terminal_name MINUS_ONE
+                         | terminal_name EQUAL assign_term
+                         | terminal_name PLUS_EQUAL terminal_num
+                         | terminal_name MINUS_EQUAL terminal_num
+                         | terminal_name TIMES_EQUAL terminal_num
+                         | terminal_name DIVIDE_EQUAL terminal_num
     '''
     if len(p) == 3:
         p[0] = (
@@ -331,5 +335,5 @@ def p_error(p):
 parser = yacc(debug=True)
 
 # Parse an expression
-ast = parser.parse('X = 1')
+ast = parser.parse('_X >= 1')
 print(ast)

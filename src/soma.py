@@ -119,6 +119,12 @@ def p_expression(p):
     '''
     p[0] = p[1]
 
+def p_term_num_char(p):
+    '''term_num_char : terminal_num
+                     | terminal_char
+    '''
+    p[0] = p[1] #terminal_num/terminal_char
+
 def p_terminal_num(p):
     '''terminal_num : terminal_number
 	                | REALNUMBER
@@ -196,7 +202,7 @@ def p_declar_factor_char(p):
         p[0] = p[1]
 
 def p_declar_factor(p):
-    '''declar_factor : terminal_name COMMA declar_factor_char
+    '''declar_factor : terminal_name COMMA declar_factor
                      | terminal_name
     '''
     if len(p) == 2:
@@ -260,7 +266,7 @@ def p_math_factor(p):
 def p_assign_expression(p):
     '''assign_expression : terminal_name PLUS_ONE
                          | terminal_name MINUS_ONE
-                         | terminal_name EQUAL assign_term
+                         | terminal_name EQUAL term_num_char
                          | terminal_name PLUS_EQUAL terminal_num
                          | terminal_name MINUS_EQUAL terminal_num
                          | terminal_name TIMES_EQUAL terminal_num
@@ -277,33 +283,22 @@ def p_assign_expression(p):
                 p[2], # EQUAL/PLUS_EQUAL/MINUS_EQUAL/TIMES_EQUAL/DIVIDE_EQUAL
                 p[3]  #assign_term/terminal_num
                )
-    
-def p_assign_term(p):
-    '''assign_term : terminal_num
-                   | terminal_char
-    '''
-    p[0] = p[1] #terminal_num/terminal_char
+
     
 ########## Gramática -> Operações de Lógica ##########
 def p_logic_expression(p):
-    '''logic_expression : logic_term EQUAL_TO logic_term 
-		                | logic_term  NOT_EQUAL logic_term  
+    '''logic_expression : term_num_char EQUAL_TO term_num_char 
+		                | term_num_char  NOT_EQUAL term_num_char  
                         | terminal_num LESS_THAN terminal_num 
                         | terminal_num GREATER_THAN terminal_num 
                         | terminal_num LESS_EQUAL terminal_num 
                         | terminal_num GREATER_EQUAL terminal_num 
     '''
     p[0] = (
-            p[1], # logic_term/terminal_num
+            p[1], # term_num_char
             p[2], # EQUAL_TO/NOT_EQUAL/LESS_THAN/GREATER_THAN/LESS_EQUAL/GREATER_EQUAL
-            p[3]  # logic_term/terminal_num
+            p[3]  # term_num_char
            )
-    
-def p_logic_term(p):
-    '''logic_term : terminal_num
-                  | terminal_char
-    '''
-    p[0] = p[1] # terminal_num/terminal_char 
     
 
 ########## Gramática -> Bloco de Execução ##########

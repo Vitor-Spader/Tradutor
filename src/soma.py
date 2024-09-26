@@ -141,6 +141,26 @@ def p_terminal_char(p):
     '''
     p[0] = p[1]
 
+def p_terminal_lparen(p):
+    '''terminal_lparen : LPAREN
+    '''
+    p[0] = p[1]
+
+def p_terminal_rparen(p):
+    '''terminal_rparen : RPAREN
+    '''
+    p[0] = p[1]
+
+def p_terminal_lcbracket(p):
+    '''terminal_lcbracket : LCBRACKET
+    '''
+    p[0] = p[1]
+
+def p_terminal_rcbracket(p):
+    '''terminal_rcbracket : RCBRACKET
+    '''
+    p[0] = p[1]
+
 def p_empty(p):
     'empty :'
     pass
@@ -225,7 +245,7 @@ def p_math_term(p):
 
 def p_math_factor(p):
     '''math_factor : terminal_num
-                   | LPAREN math_expression RPAREN
+                   | terminal_lparen math_expression terminal_rparen
     '''
     if len(p) == 2:
         p[0] = p[1] #terminal_num
@@ -286,46 +306,55 @@ def p_logic_term(p):
     p[0] = p[1] # terminal_num/terminal_char 
     
 
+########## Gramática -> Bloco de Execução ##########
+def p_block_expression(p):
+    '''block_expression : terminal_lparen logic_expression terminal_rparen block_term
+    '''
+    p[0] = (
+            p[1], # LPAREN
+            p[2], # logic_expression
+            p[3], # RPAREN
+            p[4]  # block_term
+           )
+    
+def p_block_term(p):
+    '''block_term : terminal_lcbracket math_expression terminal_rcbracket
+    '''
+    p[0] = (
+            p[1], # LCBRACKET
+            p[2], # math_expression
+            p[3]  # RCBRACKET
+           )
+
 ########## Gramática -> Condicional ##########
 def p_cond_expression(p):
-    '''cond_expression : IF LPAREN logic_expression RPAREN LCBRACKET math_expression RCBRACKET cond_term
+    '''cond_expression : IF block_expression cond_term 
     '''
     p[0] = (
             p[1], # IF
-            p[2], # LPAREN
-            p[3], # logic_expression
-            p[4], # RPAREN
-            p[5], # LCBRACKET
-            p[6], # math_expression
-            p[7], # RCBRACKET
-            p[8]  # cond_term
+            p[2], # block_expression
+            p[3]  # cond_term
            )
     
 def p_cond_term(p):
-    '''cond_term : ELSE LCBRACKET  math_expression RCBRACKET
+    '''cond_term : ELSE block_term
                  | empty
-
     '''
-    if len(p) == 5:
+    if len(p) == 3:
         p[0] = (
                 p[1], # ELSE
-                p[2], # LCBRACKET
-                p[3], # math_expression
-                p[4]  # RCBRACKET
+                p[2] # block_term
                )
+    else:
+        pass
         
 ########## Gramática -> Loop ##########
 def p_loop_expression(p):
-    '''loop_expression : WHILE LPAREN logic_expression RPAREN LCBRACKET math_expression RCBRACKET 
+    '''loop_expression : WHILE block_expression
     '''
     p[0] = (
             p[1], # WHILE
-            p[2], # LPAREN
-            p[3], # logic_expression
-            p[4], # RPAREN
-            p[5], # LCBRACKET
-            p[6], # math_expression
-            p[7]  # RCBRACKET
+            p[2]  # block_expression
            )
 
 def p_error(p):

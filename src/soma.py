@@ -279,8 +279,8 @@ def p_assign_expression(p):
                )
     elif len(p) == 4:
         p[0] = (
-                p[1], # NAME 
                 p[2], # EQUAL/PLUS_EQUAL/MINUS_EQUAL/TIMES_EQUAL/DIVIDE_EQUAL
+                p[1], # NAME 
                 p[3]  #assign_term/terminal_num
                )
 

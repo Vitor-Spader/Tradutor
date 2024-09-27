@@ -226,13 +226,20 @@ def p_math_expression_uminus(p):
     p[0] = -p[2]
 
 def p_math_expression(p):
-    '''math_expression : math_expression PLUS math_term 
+    '''math_expression : terminal_name PLUS_ONE
+                       | terminal_name MINUS_ONE
+                       | math_expression PLUS math_term 
                        | math_expression MINUS math_term 
                        | math_term
     '''
     if len(p) == 2:
         p[0] = p[1] #math_term 
-               
+    elif len(p) == 3:
+        p[0] = (
+                p[2][1], # PLUS_ONE/MINUS_ONE (obtem somente o operador uma vez)
+                p[1],  # terminal_name
+                1
+               )
     elif len(p) == 4:
         p[0] = (
                 p[2], # math_expression 
@@ -242,7 +249,7 @@ def p_math_expression(p):
         
 def p_math_term(p):
     '''math_term : math_term TIMES math_factor 
-        	     | math_term DIVIDE math_factor 
+        	     | math_term DIVIDE math_factor
                  | math_factor
     '''
     if len(p) == 2:
@@ -367,6 +374,5 @@ parser = yacc(debug=True)
 
 # Parse an expression
 
-ast = parser.parse('if (_X <= 2;) {x+1;} else { X+4 ;};')
-ast = parser.parse('while (_X <= 2;) {x+1;};')
+ast = parser.parse('x++;')
 print(ast)

@@ -105,7 +105,7 @@ precedence = (
 
 ########## GRAMÁTICA GLOBAL ##########
 def p_declaration(p):
-    '''declaration : expression SEMICOLON
+    '''declaration : expression terminal_semicolon
     '''
     p[0] = p[1]
     
@@ -164,6 +164,11 @@ def p_terminal_lcbracket(p):
 
 def p_terminal_rcbracket(p):
     '''terminal_rcbracket : RCBRACKET
+    '''
+    p[0] = p[1]
+
+def p_terminal_semicolon(p):
+    '''terminal_semicolon : SEMICOLON
     '''
     p[0] = p[1]
 
@@ -303,22 +308,24 @@ def p_logic_expression(p):
 
 ########## Gramática -> Bloco de Execução ##########
 def p_block_expression(p):
-    '''block_expression : terminal_lparen logic_expression terminal_rparen block_term
+    '''block_expression : terminal_lparen logic_expression terminal_semicolon terminal_rparen block_term
     '''
     p[0] = (
-            p[1], # LPAREN
+            #p[1], # LPAREN
             p[2], # logic_expression
-            p[3], # RPAREN
-            p[4]  # block_term
+            #p[3], # terminal_semicolon
+            #p[4]  # terminal_rparen
+            p[5]  # block_term
            )
     
 def p_block_term(p):
-    '''block_term : terminal_lcbracket math_expression terminal_rcbracket
+    '''block_term : terminal_lcbracket math_expression terminal_semicolon terminal_rcbracket
     '''
     p[0] = (
-            p[1], # LCBRACKET
-            p[2], # math_expression
-            p[3]  # RCBRACKET
+            #p[1], # LCBRACKET
+            p[2] # math_expression
+            #p[3], # terminal_semicolon
+            #p[4]  # RCBRACKET
            )
 
 ########## Gramática -> Condicional ##########
@@ -359,5 +366,7 @@ def p_error(p):
 parser = yacc(debug=True)
 
 # Parse an expression
-ast = parser.parse('if (_X <= 2) {x+1};')
+
+ast = parser.parse('if (_X <= 2;) {x+1;} else { X+4 ;};')
+ast = parser.parse('while (_X <= 2;) {x+1;};')
 print(ast)

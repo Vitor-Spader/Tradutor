@@ -21,3 +21,5 @@ x > y;
 if (x == y;) {x * y;};
 
 while (x <= y;) {x - y;};
+
+char x,b,d;

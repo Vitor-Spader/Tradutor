@@ -197,12 +197,6 @@ def p_declar_factor_char(p):
                 p[3], # terminal_number
                 p[4]  # RBRACKET
                )
-    elif len(p) == 4:
-        p[0] = (
-                p[1], # declar_factor_char 
-                p[2], # COMMA
-                p[3]  # declar_factor_char
-               )
     elif len(p) == 2:
         p[0] = p[1]
 
@@ -216,7 +210,7 @@ def p_declar_factor(p):
     elif len(p) == 4:
         p[0] = (
                 p[1], # declar_factor 
-                p[2], # COMMA
+                #p[2], # COMMA
                 p[3]  # declar_factor_char
                )
                

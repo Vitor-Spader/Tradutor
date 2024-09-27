@@ -226,9 +226,7 @@ def p_math_expression_uminus(p):
     p[0] = -p[2]
 
 def p_math_expression(p):
-    '''math_expression : terminal_name PLUS_ONE
-                       | terminal_name MINUS_ONE
-                       | math_expression PLUS math_term 
+    '''math_expression : math_expression PLUS math_term 
                        | math_expression MINUS math_term 
                        | math_term
     '''
@@ -286,8 +284,9 @@ def p_assign_expression(p):
     '''
     if len(p) == 3:
         p[0] = (
+                p[2][1], # PLUS_ONE/MINUS_ONE 
                 p[1], # NAME
-                p[2]  # PLUS_ONE/MINUS_ONE
+                1
                )
     elif len(p) == 4:
         p[0] = (

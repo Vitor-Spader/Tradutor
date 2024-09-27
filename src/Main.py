@@ -105,7 +105,7 @@ precedence = (
 
 ########## GRAMÁTICA GLOBAL ##########
 def p_declaration(p):
-    '''declaration : expression SEMICOLON
+    '''declaration : expression terminal_semicolon
     '''
     p[0] = p[1]
     
@@ -167,6 +167,11 @@ def p_terminal_rcbracket(p):
     '''
     p[0] = p[1]
 
+def p_terminal_semicolon(p):
+    '''terminal_semicolon : SEMICOLON
+    '''
+    p[0] = p[1]
+
 def p_empty(p):
     'empty :'
     pass
@@ -221,13 +226,20 @@ def p_math_expression_uminus(p):
     p[0] = -p[2]
 
 def p_math_expression(p):
-    '''math_expression : math_expression PLUS math_term 
+    '''math_expression : terminal_name PLUS_ONE
+                       | terminal_name MINUS_ONE
+                       | math_expression PLUS math_term 
                        | math_expression MINUS math_term 
                        | math_term
     '''
     if len(p) == 2:
         p[0] = p[1] #math_term 
-               
+    elif len(p) == 3:
+        p[0] = (
+                p[2][1], # PLUS_ONE/MINUS_ONE (obtem somente o operador uma vez)
+                p[1],  # terminal_name
+                1
+               )
     elif len(p) == 4:
         p[0] = (
                 p[2], # math_expression 
@@ -237,7 +249,7 @@ def p_math_expression(p):
         
 def p_math_term(p):
     '''math_term : math_term TIMES math_factor 
-        	     | math_term DIVIDE math_factor 
+        	     | math_term DIVIDE math_factor
                  | math_factor
     '''
     if len(p) == 2:
@@ -279,8 +291,8 @@ def p_assign_expression(p):
                )
     elif len(p) == 4:
         p[0] = (
-                p[1], # NAME 
                 p[2], # EQUAL/PLUS_EQUAL/MINUS_EQUAL/TIMES_EQUAL/DIVIDE_EQUAL
+                p[1], # NAME 
                 p[3]  #assign_term/terminal_num
                )
 
@@ -295,30 +307,32 @@ def p_logic_expression(p):
                         | terminal_num GREATER_EQUAL terminal_num 
     '''
     p[0] = (
-            p[1], # term_num_char
             p[2], # EQUAL_TO/NOT_EQUAL/LESS_THAN/GREATER_THAN/LESS_EQUAL/GREATER_EQUAL
+            p[1], # term_num_char
             p[3]  # term_num_char
            )
     
 
 ########## Gramática -> Bloco de Execução ##########
 def p_block_expression(p):
-    '''block_expression : terminal_lparen logic_expression terminal_rparen block_term
+    '''block_expression : terminal_lparen logic_expression terminal_semicolon terminal_rparen block_term
     '''
     p[0] = (
-            p[1], # LPAREN
+            #p[1], # LPAREN
             p[2], # logic_expression
-            p[3], # RPAREN
-            p[4]  # block_term
+            #p[3], # terminal_semicolon
+            #p[4]  # terminal_rparen
+            p[5]  # block_term
            )
     
 def p_block_term(p):
-    '''block_term : terminal_lcbracket math_expression terminal_rcbracket
+    '''block_term : terminal_lcbracket math_expression terminal_semicolon terminal_rcbracket
     '''
     p[0] = (
-            p[1], # LCBRACKET
-            p[2], # math_expression
-            p[3]  # RCBRACKET
+            #p[1], # LCBRACKET
+            p[2] # math_expression
+            #p[3], # terminal_semicolon
+            #p[4]  # RCBRACKET
            )
 
 ########## Gramática -> Condicional ##########
@@ -359,5 +373,11 @@ def p_error(p):
 parser = yacc(debug=True)
 
 # Parse an expression
-ast = parser.parse('_X *= 2;')
-print(ast)
+import os
+
+with open('src/tests.txt') as file:
+    for line in file:
+        lineRead = line.strip()
+        if lineRead: 
+            result = parser.parse(lineRead)
+            print(result)

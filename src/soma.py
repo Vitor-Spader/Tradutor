@@ -373,6 +373,9 @@ def p_error(p):
 parser = yacc(debug=True)
 
 # Parse an expression
-
-ast = parser.parse('x++;')
-print(ast)
+with open('src/tests.txt', 'r') as file:
+    for line in file:
+        lineRead = line.strip()
+        if lineRead: 
+            result = parser.parse(lineRead)
+            print(result)

@@ -366,7 +366,9 @@ def p_error(p):
 parser = yacc(debug=True)
 
 # Parse an expression
-
-ast = parser.parse('if (_X <= 2;) {x+1;} else { X+4 ;};')
-ast = parser.parse('while (_X <= 2;) {x+1;};')
-print(ast)
+with open('src/tests.txt', 'r') as file:
+    for line in file:
+        lineRead = line.strip()
+        if lineRead: 
+            result = parser.parse(lineRead)
+            print(result)

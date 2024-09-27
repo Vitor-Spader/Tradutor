@@ -1,0 +1,28 @@
+// operadores matemáticos
+x + y;
+x - y;
+x * y;
+x / y;
+x++;
+x--;
+
+// operadores de atribuição
+x = y;
+x += y;
+x -= y;
+x *= y;
+x /= y;
+
+//operadores relacionais
+x == y;
+x != y;
+x <= y;
+x >= y;
+x < y;
+x > y;
+
+// condicional
+if (x == y) {x *= y};
+
+// loop
+while (x <= y;) {x - y;};

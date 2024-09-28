@@ -227,12 +227,6 @@ def p_math_expression(p):
     '''
     if len(p) == 2:
         p[0] = p[1] #math_term 
-    elif len(p) == 3:
-        p[0] = (
-                p[2][1], # PLUS_ONE/MINUS_ONE (obtem somente o operador uma vez)
-                p[1],  # terminal_name
-                1
-               )
     elif len(p) == 4:
         p[0] = (
                 p[2], # math_expression 
@@ -282,13 +276,13 @@ def p_assign_expression(p):
     if len(p) == 3:
         p[0] = (
                 p[2][1], # PLUS_ONE/MINUS_ONE 
-                p[1], # NAME
+                p[1], # terminal_name
                 1
                )
     elif len(p) == 4:
         p[0] = (
                 p[2], # EQUAL/PLUS_EQUAL/MINUS_EQUAL/TIMES_EQUAL/DIVIDE_EQUAL
-                p[1], # NAME 
+                p[1], # terminal_name 
                 p[3]  #assign_term/terminal_num
                )
 

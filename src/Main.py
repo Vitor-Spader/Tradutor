@@ -105,14 +105,15 @@ precedence = (
 
 ########## GRAMÁTICA GLOBAL ##########
 def p_declaration(p):
-    '''declaration : expression terminal_semicolon
+    '''declaration : expression terminal_semicolon declaration
+                   | assign_expression terminal_semicolon declaration
+                   | empty
     '''
     p[0] = p[1]
     
 def p_expression(p):
-    '''expression : math_expression
+    '''expression : math_expression 
 	              | logic_expression
-                  | assign_expression
                   | declar_expression
                   | cond_expression
                   | loop_expression
@@ -261,20 +262,22 @@ def p_math_factor(p):
         p[0] = p[1] #terminal_num
     elif len(p) == 4:
         p[0] = (
-                p[2], # LPAREN 
-                p[1], # math_expression
-                p[3]  # RPAREN
+                'prec',
+                #p[1], # LPAREN 
+                p[2], # math_expression
+                #p[3]  # RPAREN
                )
 
 ########## Gramática -> Operações de Atribuição ##########
 def p_assign_expression(p):
-    '''assign_expression : terminal_name PLUS_ONE
-                         | terminal_name MINUS_ONE
-                         | terminal_name EQUAL term_num_char
-                         | terminal_name PLUS_EQUAL terminal_num
-                         | terminal_name MINUS_EQUAL terminal_num
-                         | terminal_name TIMES_EQUAL terminal_num
-                         | terminal_name DIVIDE_EQUAL terminal_num
+    '''assign_expression : terminal_name PLUS_ONE 
+                         | terminal_name MINUS_ONE 
+                         | terminal_name PLUS_EQUAL terminal_num 
+                         | terminal_name MINUS_EQUAL terminal_num 
+                         | terminal_name TIMES_EQUAL terminal_num 
+                         | terminal_name DIVIDE_EQUAL terminal_num 
+                         | terminal_name EQUAL assign_term 
+                         | terminal_name EQUAL term_num_char 
     '''
     if len(p) == 3:
         p[0] = (
@@ -289,6 +292,12 @@ def p_assign_expression(p):
                 p[3]  #assign_term/terminal_num
                )
 
+def p_assign_term(p):
+    '''assign_term : math_expression 
+                   | logic_expression
+    '''
+    p[0] = p[1]
+    
     
 ########## Gramática -> Operações de Lógica ##########
 def p_logic_expression(p):

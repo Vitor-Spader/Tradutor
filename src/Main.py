@@ -209,9 +209,9 @@ def p_declar_factor(p):
                
     elif len(p) == 4:
         p[0] = (
-                p[1], # declar_factor 
+                p[1], # terminal_name
                 #p[2], # COMMA
-                p[3]  # declar_factor_char
+                p[3]  # declar_factor
                )
                
 ########## Gramática -> Operações Matemáticas ##########

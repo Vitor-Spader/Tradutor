@@ -28,3 +28,13 @@ char x,b,d;
 
 x = (1 + 2 );
 x = a==True;X++;
+
+x = (1 + 2 ); x++;
+x = a==True;X++;
+
+char if;
+int if;
+
+int 5a;
+
+1/0;

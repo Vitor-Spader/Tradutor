@@ -109,7 +109,13 @@ def p_declaration(p):
                    | assign_expression terminal_semicolon declaration
                    | empty
     '''
-    p[0] = p[1]
+    if len(p) == 4:
+        p[0] = (
+            'instr', #ID instruction
+            p[1], # expression_terminal
+            #p[2], # terminal_semicolon
+            p[3]  # declaration
+        )
     
 def p_expression(p):
     '''expression : math_expression 
@@ -242,9 +248,13 @@ def p_math_term(p):
     if len(p) == 2:
         p[0] = p[1] #math_factor
     elif len(p) == 4:
+        if (p[2] == '/' and p[3] == 0):
+            print(f'Syntax error at 0, Division By Zero')
+            raise SyntaxError
+        
         p[0] = (
-                p[2], # math_term 
-                p[1], # TIMES/DIVIDE
+                p[2], # TIMES/DIVIDE 
+                p[1], # math_term
                 p[3]  # math_factor
                )
 

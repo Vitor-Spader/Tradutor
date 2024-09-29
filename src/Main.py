@@ -118,9 +118,7 @@ def p_declaration(p):
         )
     
 def p_expression(p):
-    '''expression : math_expression 
-	              | logic_expression
-                  | declar_expression
+    '''expression : declar_expression
                   | cond_expression
                   | loop_expression
     '''
@@ -227,7 +225,7 @@ def p_math_expression_uminus(p):
     p[0] = -p[2]
 
 def p_math_expression(p):
-    '''math_expression : math_expression PLUS math_term 
+    '''math_expression : math_expression PLUS math_term
                        | math_expression MINUS math_term 
                        | math_term
     '''
@@ -285,7 +283,7 @@ def p_assign_expression(p):
     '''
     if len(p) == 3:
         p[0] = (
-                p[2][1], # PLUS_ONE/MINUS_ONE 
+                f'{p[2][1]}=', # PLUS_ONE/MINUS_ONE 
                 p[1], # terminal_name
                 1
                )
@@ -298,7 +296,6 @@ def p_assign_expression(p):
 
 def p_assign_term(p):
     '''assign_term : math_expression 
-                   | logic_expression
     '''
     p[0] = p[1]
     
@@ -321,14 +318,13 @@ def p_logic_expression(p):
 
 ########## Gramática -> Bloco de Execução ##########
 def p_block_expression(p):
-    '''block_expression : terminal_lparen logic_expression terminal_semicolon terminal_rparen block_term
+    '''block_expression : terminal_lparen logic_expression terminal_rparen block_term
     '''
     p[0] = (
             #p[1], # LPAREN
             p[2], # logic_expression
-            #p[3], # terminal_semicolon
-            #p[4]  # terminal_rparen
-            p[5]  # block_term
+            #p[3]  # terminal_rparen
+            p[4]  # block_term
            )
     
 def p_block_term(p):
@@ -337,7 +333,7 @@ def p_block_term(p):
     p[0] = (
             #p[1], # LCBRACKET
             p[2] # math_expression
-            #p[3], # terminal_semicolon
+            #p[3] # terminal_semicolon
             #p[4]  # RCBRACKET
            )
 

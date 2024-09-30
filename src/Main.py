@@ -316,6 +316,19 @@ def p_logic_expression(p):
            )
     
 
+def p_statement_list(p):
+    '''statement_list : assign_expression terminal_semicolon statement_list
+                      | assign_expression terminal_semicolon
+                      | empty
+    '''
+    if len(p) == 4:
+        p[0] = (p[1],  p[3])
+    elif len(p) == 3:
+        p[0] = p[1]
+    else:
+        p[0] = []
+    
+
 ########## Gramática -> Bloco de Execução ##########
 def p_block_expression(p):
     '''block_expression : terminal_lparen logic_expression terminal_rparen block_term
@@ -328,11 +341,11 @@ def p_block_expression(p):
            )
     
 def p_block_term(p):
-    '''block_term : terminal_lcbracket assign_expression terminal_semicolon terminal_rcbracket
+    '''block_term : terminal_lcbracket statement_list terminal_rcbracket
     '''
     p[0] = (
             #p[1], # LCBRACKET
-            p[2] # assign_expression
+            p[2] # statement_list
             #p[3] # terminal_semicolon
             #p[4]  # RCBRACKET
            )

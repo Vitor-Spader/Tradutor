@@ -322,9 +322,9 @@ def p_statement_list(p):
                       | empty
     '''
     if len(p) == 4:
-        p[0] = [p[1]] + p[3]
+        p[0] = (p[1],  p[3])
     elif len(p) == 3:
-        p[0] = [p[1]]
+        p[0] = p[1]
     else:
         p[0] = []
     

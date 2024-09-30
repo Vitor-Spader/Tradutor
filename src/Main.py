@@ -328,11 +328,11 @@ def p_block_expression(p):
            )
     
 def p_block_term(p):
-    '''block_term : terminal_lcbracket math_expression terminal_semicolon terminal_rcbracket
+    '''block_term : terminal_lcbracket assign_expression terminal_semicolon terminal_rcbracket
     '''
     p[0] = (
             #p[1], # LCBRACKET
-            p[2] # math_expression
+            p[2] # assign_expression
             #p[3] # terminal_semicolon
             #p[4]  # RCBRACKET
            )
